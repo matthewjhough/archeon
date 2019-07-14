@@ -4,7 +4,7 @@ import graphene
 import os
 from graphene_sqlalchemy import SQLAlchemyObjectType, SQLAlchemyConnectionField
 from flask_graphql import GraphQLView
-from src import PostObject, UserObject, CreatePost
+from src import db, PostObject, UserObject, CreatePost
 
 
 basedir = os.path.abspath(os.path.dirname(__file__))
@@ -12,11 +12,16 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 app = Flask(__name__)
 app.debug = True
 
+
 # Configs
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + \
     os.path.join(basedir, 'data.sqlite')
 app.config['SQLALCHEMY_COMMIT_ON_TEARDOWN'] = True
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
+
+
+# init db
+db.init_app(app)
 
 
 # Combine schemas

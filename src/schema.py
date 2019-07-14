@@ -1,7 +1,8 @@
 import graphene
 from graphene_sqlalchemy import SQLAlchemyObjectType, SQLAlchemyConnectionField
-from db import db
-from model import Post, User
+from .model import Post, User
+from .db import db
+
 
 # Schema Objects
 

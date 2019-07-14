@@ -1,4 +1,4 @@
-from db import db
+from .db import db
 
 # Models
 
@@ -18,7 +18,8 @@ class Post(db.Model):
     uuid = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(256), index=True)
     body = db.Column(db.Text)
-    author_id = db.Column(db.Integer, db.ForeignKey('users.uuid'))
+    author_id = db.Column(
+        db.Integer, db.ForeignKey('users.uuid'))
 
     def __repr__(self):
         return '<Post %r>' % self.title
