@@ -4,3 +4,6 @@ flask-migrate==2.5.2
 flask-sqlalchemy==2.4.0
 graphene==2.1.6
 graphene-sqlalchemy==2.2.1
+graphql-ws==0.3.0
+flask_sockets
+gevent
