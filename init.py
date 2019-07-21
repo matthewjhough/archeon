@@ -1,6 +1,6 @@
 import os
 from flask import Flask
-from src import Post, User
+from model import Post, User, Message
 from app import app, db
 
 
