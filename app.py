@@ -1,4 +1,3 @@
-# pylint-disable-next-line function-redefined
 from flask import Flask
 from flask_sockets import Sockets
 import os

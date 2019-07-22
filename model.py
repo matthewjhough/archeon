@@ -36,11 +36,3 @@ class Message(db.Model):
 
     def __repr__(self):
         return '<Message %r>' % self.content
-
-
-# example subscription class
-
-
-class RandomType(graphene.ObjectType):
-    seconds = graphene.Int()
-    random_int = graphene.Int()
