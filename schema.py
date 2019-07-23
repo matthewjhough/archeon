@@ -25,46 +25,10 @@ class UserType(SQLAlchemyObjectType):
         interfaces = (graphene.relay.Node, )
 
 
-class PostType(SQLAlchemyObjectType):
-    class Meta:
-        model = Post
-        interfaces = (graphene.relay.Node, )
-
-
 class MessageType(SQLAlchemyObjectType):
     class Meta:
         model = Message
         interfaces = (graphene.relay.Node, )
-
-
-# example subscription class
-
-
-class RandomType(graphene.ObjectType):
-    seconds = graphene.Int()
-    random_int = graphene.Int()
-
-
-# Mutations
-class CreatePost(graphene.Mutation):
-    class Arguments:
-        title = graphene.String(required=True)
-        body = graphene.String(required=True)
-        username = graphene.String(required=True)
-    post = graphene.Field(lambda: PostType)
-
-    def mutate(self, info, title, body, username):
-
-        user = User.query.filter_by(username=username).first()
-        post = Post(title=title, body=body)
-
-        if user is not None:
-            post.author = user
-
-        db.session.add(post)
-        db.session.commit()
-
-        return CreatePost(post=post)
 
 
 class CreateMessage(graphene.Mutation):
@@ -98,21 +62,15 @@ class CreateMessage(graphene.Mutation):
 # Combine schemas
 class Query(graphene.ObjectType):
     node = graphene.relay.Node.Field()
-    all_posts = SQLAlchemyConnectionField(PostType)
     all_users = SQLAlchemyConnectionField(UserType)
     all_messages = SQLAlchemyConnectionField(MessageType)
 
 
 class Mutation(graphene.ObjectType):
-    create_post = CreatePost.Field()
     create_message = CreateMessage.Field()
 
 
 class Subscription(graphene.ObjectType):
-
-    count_seconds = graphene.Int(up_to=graphene.Int())
-
-    random_int = graphene.Field(RandomType)
 
     message = graphene.Field(lambda: MessageType)
 
@@ -125,14 +83,6 @@ class Subscription(graphene.ObjectType):
         return pubsub.\
             filter(lambda msg: msg[0] == 'message').\
             map(lambda msg: _resolve(msg[1]))
-
-    def resolve_count_seconds(root, info, up_to=5):
-        return Observable.interval(1000)\
-                         .map(lambda i: "{0}".format(i))\
-                         .take_while(lambda i: int(i) <= up_to)
-
-    def resolve_random_int(root, info):
-        return Observable.interval(1000).map(lambda i: RandomType(seconds=i, random_int=random.randint(0, 500)))
 
 
 pubsub.subscribe(messages.append)
