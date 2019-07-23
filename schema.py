@@ -1,19 +1,20 @@
 import graphene
 import random
-from rx import Observable
+import rx
+# from rx import Observable, subjects.subjects.Subject
 from graphene_sqlalchemy import SQLAlchemyObjectType, SQLAlchemyConnectionField
-# from graphql_ws.pubsub import GeventRxRedisPubsub
 from model import Post, User, Message
 from db import db
-
-# TODO: SETUP PUBSUB FOR SUBSCRIPTIONS / MUTATIONS.
 
 # TODO: ADD PARAMETERS/RESOLVERS TO QUERIES
 
 # TODO: ADD USER/AUTHENTICATION LOGIN
 
 # TODO: ADD AUTHORIZATION FOR USERS
-# pubsub = GeventRxRedisPubsub()
+
+Observable = rx.Observable
+pubsub = rx.subjects.Subject()
+messages = []
 
 # Types
 
@@ -80,11 +81,17 @@ class CreateMessage(graphene.Mutation):
         if user is not None:
             message.user = user
 
-        if Subscription is not None:
-            Subscription.resolve_message_added(Subscription, message)
-
+        # TODO: REPLACE WITH HTTP REQUEST TO MESSAGE SERVER
         db.session.add(message)
         db.session.commit()
+        db.session.flush()
+
+        if pubsub is not None:
+            print(message.uuid)
+            messages.append(message)
+            pubsub.on_next(('message', message))
+
+
         return CreateMessage(message=message)
 
 
@@ -107,24 +114,17 @@ class Subscription(graphene.ObjectType):
 
     random_int = graphene.Field(RandomType)
 
-    message_added = graphene.Field(lambda: MessageType)
+    message = graphene.Field(lambda: MessageType)
 
-    def resolve_message_added(root, info):
-        print("*** resolve message ***")
-        print(info)
-        print(root)
+    def resolve_message(root, info):
+        # TODO: FILTER BASED ON USER ID SUBSCIPTION
 
-        message = db.session.query(Message).order_by(
-            Message.uuid.desc()).first()
+        def _resolve(val):
+            return val
 
-        messageStream = Observable.of(message)
-
-        if hasattr(info, "uuid"):
-            print("Message created, publishing message...")
-            return messageStream
-
-        print("publishing...")
-        return messageStream
+        return pubsub.\
+            filter(lambda msg: msg[0] == 'message').\
+            map(lambda msg: _resolve(msg[1]))
 
     def resolve_count_seconds(root, info, up_to=5):
         return Observable.interval(1000)\
@@ -134,6 +134,8 @@ class Subscription(graphene.ObjectType):
     def resolve_random_int(root, info):
         return Observable.interval(1000).map(lambda i: RandomType(seconds=i, random_int=random.randint(0, 500)))
 
+
+pubsub.subscribe(messages.append)
 
 schema = graphene.Schema(
     query=Query,
