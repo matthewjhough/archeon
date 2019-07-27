@@ -1,9 +1,9 @@
 import graphene
 import logging
 from graphene_sqlalchemy import SQLAlchemyConnectionField
-from model import Message
-from gql_types import UserType, MessageType, CreateMessage
-from pubsub import pubsub, messages
+from src.model import Message
+from src.gql_types import UserType, MessageType, CreateMessage
+from src.pubsub import pubsub, messages
 
 logger = logging.getLogger("schema")
 
@@ -19,17 +19,18 @@ logger = logging.getLogger("schema")
 class Query(graphene.ObjectType):
     node = graphene.relay.Node.Field()
     all_users = SQLAlchemyConnectionField(UserType)
-    all_messages = graphene.relay.node.Field(MessageType, user_id=graphene.String())
+    all_messages = graphene.List(MessageType, user_id=graphene.String())
 
     def resolve_all_messages(self, info, user_id):
-
         try:
-            logger.info("fetching messages for user_id: %s", user_id)
-            all_messages = Message.query.filter_by(user_id=user_id)
+            logger.debug("fetching messages for user_id: %s", user_id)
+            message_query = Message.query.filter_by(user_id=user_id)
+            message_count = message_query.count()
+            all_messages = message_query.all()
         except NameError:
             logger.error("Error occurred when fetching messages for user_id %s;\nError message: %s", user_id, NameError)
         else:
-            logger.info("returning messages...")
+            logger.debug("returning %s messages...", message_count)
             return all_messages
 
 
@@ -48,8 +49,13 @@ class Subscription(graphene.ObjectType):
         def _resolve(message):
             current_user_id = kwargs['user_id']
             logger.info('current user id: %s', current_user_id)
-            logger.info('message info: %s', message.user_id)
-            return message
+            logger.info('message user_id: %s', message.user_id)
+            is_current_user = str(current_user_id) == str(message.user_id)
+            logger.debug("message user is current user: %s", is_current_user)
+            if is_current_user:
+                return message
+
+            return
 
         return pubsub.\
             filter(lambda msg: msg[0] == 'message').\

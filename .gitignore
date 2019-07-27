@@ -4,3 +4,4 @@ venv
 .idea
 data.sqlite
 arch_presentation.log
+logs/arch_presentation.log

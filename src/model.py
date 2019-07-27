@@ -1,5 +1,4 @@
-import graphene
-from db import db
+from src.db import db
 
 # Models
 
