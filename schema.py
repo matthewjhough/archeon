@@ -3,7 +3,7 @@ import random
 import rx
 # from rx import Observable, subjects.subjects.Subject
 from graphene_sqlalchemy import SQLAlchemyObjectType, SQLAlchemyConnectionField
-from model import Post, User, Message
+from model import User, Message
 from db import db
 
 # TODO: ADD PARAMETERS/RESOLVERS TO QUERIES
@@ -51,7 +51,6 @@ class CreateMessage(graphene.Mutation):
         db.session.flush()
 
         if pubsub is not None:
-            print(message.uuid)
             messages.append(message)
             pubsub.on_next(('message', message))
 
@@ -72,13 +71,21 @@ class Mutation(graphene.ObjectType):
 
 class Subscription(graphene.ObjectType):
 
-    message = graphene.Field(lambda: MessageType)
+    # message = graphene.Field(lambda: MessageType, user_id=graphene.String)
 
-    def resolve_message(root, info):
-        # TODO: FILTER BASED ON USER ID SUBSCIPTION
+    message = graphene.Field(MessageType, user_id=graphene.String())
 
-        def _resolve(val):
-            return val
+    def resolve_message(root, info, **kwargs):
+        # TODO: FILTER BASED ON USER ID & SESSION
+        print('(resolve_message) logging kwargs...')
+        print(kwargs)
+
+        def _resolve(message):
+            current_user_id = kwargs['user_id']
+            print('(resolve_message, _resolve) current user id: ' + current_user_id)
+            print('(resolve_message, _resolve) mesage info: ')
+            print(message.user_id)
+            return message
 
         return pubsub.\
             filter(lambda msg: msg[0] == 'message').\
