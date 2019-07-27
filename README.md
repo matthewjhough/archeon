@@ -1,4 +1,4 @@
-# archeon
+# Archeon
 Open source messaging platform
 
 # Setup
