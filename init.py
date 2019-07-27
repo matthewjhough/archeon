@@ -4,6 +4,8 @@ from app import app, db
 
 logger = logging.getLogger("initialization")
 
+# TODO: SEND AJAX REQUEST TO ENDPOINT FOR CONFIG FILE DATA, THEN WRITE FILES IN /config DIR
+
 def initialize(db):
     with app.app_context():
         logger.info("initializing db..")

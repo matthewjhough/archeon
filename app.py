@@ -6,20 +6,15 @@ from graphql_ws.gevent import GeventSubscriptionServer
 from flask_graphql import GraphQLView
 from src.db import db
 from src.schema import schema
+from utils.logging import set_logging_path
 
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
 
-def setLoggingpPath():
-    if not os.path.exists("logs"):
-        os.makedirs("logs")
-
-    return 'logs/server.log'
-
 # logging setup
 logging.basicConfig(
-    filename=setLoggingpPath(),
+    filename=set_logging_path('logs', 'logs/server.log'),
     level=logging.INFO,
     format="[%(asctime)s] %(levelname)s [%(name)s.%(funcName)s:%(lineno)d] %(message)s"
 )
