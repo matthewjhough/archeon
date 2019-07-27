@@ -1,10 +1,11 @@
 import graphene
-import random
+import logging
 import rx
-# from rx import Observable, subjects.subjects.Subject
 from graphene_sqlalchemy import SQLAlchemyObjectType, SQLAlchemyConnectionField
 from model import User, Message
 from db import db
+
+logger = logging.getLogger("schema")
 
 # TODO: ADD PARAMETERS/RESOLVERS TO QUERIES
 
@@ -75,14 +76,12 @@ class Subscription(graphene.ObjectType):
 
     def resolve_message(root, info, **kwargs):
         # TODO: FILTER BASED ON USER ID & SESSION
-        print('(resolve_message) logging kwargs...')
-        print(kwargs)
+        logger.debug('(resolve_message) logging kwargs: %s', kwargs)
 
         def _resolve(message):
             current_user_id = kwargs['user_id']
-            print('(resolve_message, _resolve) current user id: ' + current_user_id)
-            print('(resolve_message, _resolve) mesage info: ')
-            print(message.user_id)
+            logger.debug('(resolve_message, _resolve) current user id: %s', current_user_id)
+            logger.debug('(resolve_message, _resolve) message info: %s', message.user_id)
             return message
 
         return pubsub.\

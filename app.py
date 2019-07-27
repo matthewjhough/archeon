@@ -1,10 +1,15 @@
 from flask import Flask
 from flask_sockets import Sockets
 import os
+import logging
 from graphql_ws.gevent import GeventSubscriptionServer
 from flask_graphql import GraphQLView
 from db import db
 from schema import schema
+
+logging.basicConfig(filename='arch_presentation.log', level=logging.DEBUG)
+logger = logging.getLogger("app")
+logger.debug("Starting Server...")
 
 
 basedir = os.path.abspath(os.path.dirname(__file__))

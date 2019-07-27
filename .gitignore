@@ -3,3 +3,4 @@ venv
 .vscode
 .idea
 data.sqlite
+arch_presentation.log
