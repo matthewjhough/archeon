@@ -8,9 +8,18 @@ from src.db import db
 from src.schema import schema
 
 
+basedir = os.path.abspath(os.path.dirname(__file__))
+
+
+def setLoggingpPath():
+    if not os.path.exists("logs"):
+        os.makedirs("logs")
+
+    return 'logs/server.log'
+
 # logging setup
 logging.basicConfig(
-    filename='logs/arch_presentation.log',
+    filename=setLoggingpPath(),
     level=logging.DEBUG,
     format="[%(asctime)s] %(levelname)s [%(name)s.%(funcName)s:%(lineno)d] %(message)s"
 )
@@ -18,7 +27,6 @@ logger = logging.getLogger("app")
 logger.info("starting server...")
 
 
-basedir = os.path.abspath(os.path.dirname(__file__))
 # app initialization
 app = Flask(__name__)
 app.debug = True
