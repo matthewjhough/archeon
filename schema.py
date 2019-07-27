@@ -71,8 +71,6 @@ class Mutation(graphene.ObjectType):
 
 class Subscription(graphene.ObjectType):
 
-    # message = graphene.Field(lambda: MessageType, user_id=graphene.String)
-
     message = graphene.Field(MessageType, user_id=graphene.String())
 
     def resolve_message(root, info, **kwargs):
