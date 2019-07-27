@@ -20,7 +20,7 @@ def setLoggingpPath():
 # logging setup
 logging.basicConfig(
     filename=setLoggingpPath(),
-    level=logging.DEBUG,
+    level=logging.INFO,
     format="[%(asctime)s] %(levelname)s [%(name)s.%(funcName)s:%(lineno)d] %(message)s"
 )
 logger = logging.getLogger("app")
