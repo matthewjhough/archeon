@@ -9,9 +9,12 @@ logger = logging.getLogger("schema")
 
 # TODO: ADD PARAMETERS/RESOLVERS TO QUERIES
 
+# TODO: ADD SESSION
+
 # TODO: ADD USER/AUTHENTICATION LOGIN
 
 # TODO: ADD AUTHORIZATION FOR USERS
+
 
 Observable = rx.Observable
 pubsub = rx.subjects.Subject()
@@ -39,23 +42,29 @@ class CreateMessage(graphene.Mutation):
     message = graphene.Field(lambda: MessageType)
 
     def mutate(self, info, content, username):
+        logger.info("username: %s submitting message content: %s", username, content)
 
         user = User.query.filter_by(username=username).first()
         message = Message(content=content)
 
         if user is not None:
+            logger.info("user found, assigning user to message.")
             message.user = user
 
         # TODO: REPLACE WITH HTTP REQUEST TO MESSAGE SERVER
         db.session.add(message)
+        logger.debug("adding user to session...")
         db.session.commit()
+        logger.debug("committing session...")
         db.session.flush()
+        logger.debug("flushing session...")
 
         if pubsub is not None:
             messages.append(message)
+            logger.info("publishing message: %s", message)
             pubsub.on_next(('message', message))
 
-
+        logger.debug("completing create message...")
         return CreateMessage(message=message)
 
 
@@ -76,12 +85,12 @@ class Subscription(graphene.ObjectType):
 
     def resolve_message(root, info, **kwargs):
         # TODO: FILTER BASED ON USER ID & SESSION
-        logger.debug('(resolve_message) logging kwargs: %s', kwargs)
+        logger.debug('logging kwargs: %s', kwargs)
 
         def _resolve(message):
             current_user_id = kwargs['user_id']
-            logger.debug('(resolve_message, _resolve) current user id: %s', current_user_id)
-            logger.debug('(resolve_message, _resolve) message info: %s', message.user_id)
+            logger.info('current user id: %s', current_user_id)
+            logger.info('message info: %s', message.user_id)
             return message
 
         return pubsub.\

@@ -7,9 +7,14 @@ from flask_graphql import GraphQLView
 from db import db
 from schema import schema
 
-logging.basicConfig(filename='arch_presentation.log', level=logging.DEBUG)
+# logging setup
+logging.basicConfig(
+    filename='arch_presentation.log',
+    level=logging.INFO,
+    format="[%(asctime)s] %(levelname)s [%(name)s.%(funcName)s:%(lineno)d] %(message)s"
+)
 logger = logging.getLogger("app")
-logger.debug("Starting Server...")
+logger.info("Starting Server...")
 
 
 basedir = os.path.abspath(os.path.dirname(__file__))
