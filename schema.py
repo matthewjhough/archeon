@@ -1,9 +1,9 @@
 import graphene
 import logging
-import rx
-from graphene_sqlalchemy import SQLAlchemyObjectType, SQLAlchemyConnectionField
-from model import User, Message
-from db import db
+from graphene_sqlalchemy import SQLAlchemyConnectionField
+from model import Message
+from gql_types import UserType, MessageType, CreateMessage
+from pubsub import pubsub, messages
 
 logger = logging.getLogger("schema")
 
@@ -16,63 +16,21 @@ logger = logging.getLogger("schema")
 # TODO: ADD AUTHORIZATION FOR USERS
 
 
-Observable = rx.Observable
-pubsub = rx.subjects.Subject()
-messages = []
-
-# Types
-
-
-class UserType(SQLAlchemyObjectType):
-    class Meta:
-        model = User
-        interfaces = (graphene.relay.Node, )
-
-
-class MessageType(SQLAlchemyObjectType):
-    class Meta:
-        model = Message
-        interfaces = (graphene.relay.Node, )
-
-
-class CreateMessage(graphene.Mutation):
-    class Arguments:
-        content = graphene.String(required=True)
-        username = graphene.String(required=True)
-    message = graphene.Field(lambda: MessageType)
-
-    def mutate(self, info, content, username):
-        logger.info("username: %s submitting message content: %s", username, content)
-
-        user = User.query.filter_by(username=username).first()
-        message = Message(content=content)
-
-        if user is not None:
-            logger.info("user found, assigning user to message.")
-            message.user = user
-
-        # TODO: REPLACE WITH HTTP REQUEST TO MESSAGE SERVER
-        db.session.add(message)
-        logger.debug("adding user to session...")
-        db.session.commit()
-        logger.debug("committing session...")
-        db.session.flush()
-        logger.debug("flushing session...")
-
-        if pubsub is not None:
-            messages.append(message)
-            logger.info("publishing message: %s", message)
-            pubsub.on_next(('message', message))
-
-        logger.debug("completing create message...")
-        return CreateMessage(message=message)
-
-
-# Combine schemas
 class Query(graphene.ObjectType):
     node = graphene.relay.Node.Field()
     all_users = SQLAlchemyConnectionField(UserType)
-    all_messages = SQLAlchemyConnectionField(MessageType)
+    all_messages = graphene.relay.node.Field(MessageType, user_id=graphene.String())
+
+    def resolve_all_messages(self, info, user_id):
+
+        try:
+            logger.info("fetching messages for user_id: %s", user_id)
+            all_messages = Message.query.filter_by(user_id=user_id)
+        except NameError:
+            logger.error("Error occurred when fetching messages for user_id %s;\nError message: %s", user_id, NameError)
+        else:
+            logger.info("returning messages...")
+            return all_messages
 
 
 class Mutation(graphene.ObjectType):

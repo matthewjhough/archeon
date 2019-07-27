@@ -5,7 +5,7 @@ from app import app, db
 def initialize(db):
     with app.app_context():
         db.create_all()
-        john = User(username='johndoe')
+        john = User(username='test')
         db.session.add(john)
         db.session.commit()
         User.query.all()

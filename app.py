@@ -1,11 +1,12 @@
-from flask import Flask
-from flask_sockets import Sockets
 import os
 import logging
+from flask import Flask
+from flask_sockets import Sockets
 from graphql_ws.gevent import GeventSubscriptionServer
 from flask_graphql import GraphQLView
 from db import db
 from schema import schema
+
 
 # logging setup
 logging.basicConfig(
