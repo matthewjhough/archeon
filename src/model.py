@@ -10,12 +10,16 @@ Text = db.Text
 Table = db.Table
 backref = db.backref
 
+user_session_table = Table('user_session', Model.metadata,
+                           Column('user_id', Integer, ForeignKey('users.id')),
+                           Column('session_id', Integer, ForeignKey('sessions.id'))
+                           )
+
 
 class User(Model):
 	__tablename__ = 'users'
 	id = Column(Integer, primary_key=True)
 	username = Column(String(256), index=True, unique=True)
-	session_id = Column(Integer, ForeignKey('sessions.id'))
 
 	# one to many
 	messages = relationship('Message', backref='user')
@@ -27,10 +31,12 @@ class User(Model):
 class Session(Model):
 	__tablename__ = 'sessions'
 	id = Column(Integer, primary_key=True)
-	user_id = Column(Integer, ForeignKey('users.id'))
 
 	# one to many
 	messages = relationship('Message', backref='session')
+
+	# many to many
+	users = relationship('User', secondary=user_session_table, backref=db.backref('sessions', lazy='dynamic'))
 
 	def __repr__(self):
 		return '<Session %r>' % self.id

@@ -14,15 +14,15 @@ relay = graphene.relay
 # Types
 
 
-class SessionType(SQLAlchemyObjectType):
-	class Meta:
-		model = Session
-		interfaces = (relay.Node,)
-
-
 class UserType(SQLAlchemyObjectType):
 	class Meta:
 		model = User
+		interfaces = (relay.Node,)
+
+
+class SessionType(SQLAlchemyObjectType):
+	class Meta:
+		model = Session
 		interfaces = (relay.Node,)
 
 

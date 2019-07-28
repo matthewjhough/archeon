@@ -21,11 +21,22 @@ logger = logging.getLogger("schema")
 
 class Query(graphene.ObjectType):
 	node = graphene.relay.Node.Field()
-	all_users = SQLAlchemyConnectionField(UserType)
-	all_sessions = SQLAlchemyConnectionField(SessionType)
-	all_messages = graphene.List(MessageType, user_id=graphene.String())
+	users = SQLAlchemyConnectionField(UserType)
+	sessions = graphene.List(lambda: SessionType)
+	messages = graphene.List(MessageType, user_id=graphene.String())
 
-	def resolve_all_messages(self, info, user_id):
+	def resolve_sessions(self, info):
+		try:
+			query = SessionType.get_query(info)
+			session_count = query.count()
+			all_sessions = query.all()
+		except NameError:
+			logger.error("Error occurred when fetching sessions for user_id %s;\nError message: %s", "none", NameError)
+		else:
+			logger.debug("returning %s sessions...", session_count)
+			return all_sessions
+
+	def resolve_messages(self, info, user_id):
 		try:
 			logger.debug("fetching messages for user_id: %s", user_id)
 			message_query = Message.query.filter_by(user_id=user_id)
