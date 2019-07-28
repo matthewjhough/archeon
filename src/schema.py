@@ -3,7 +3,7 @@ import logging
 import graphene
 from graphene_sqlalchemy import SQLAlchemyConnectionField
 
-from src.gql_types import CreateMessage, MessageType, UserType
+from src.gql_types import CreateMessage, MessageType, SessionType, UserType
 from src.model import Message
 from src.pubsub import messages, pubsub
 
@@ -22,6 +22,7 @@ logger = logging.getLogger("schema")
 class Query(graphene.ObjectType):
 	node = graphene.relay.Node.Field()
 	all_users = SQLAlchemyConnectionField(UserType)
+	all_sessions = SQLAlchemyConnectionField(SessionType)
 	all_messages = graphene.List(MessageType, user_id=graphene.String())
 
 	def resolve_all_messages(self, info, user_id):

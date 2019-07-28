@@ -4,26 +4,37 @@ import graphene
 from graphene_sqlalchemy import SQLAlchemyObjectType
 
 from src.db import db
-from src.model import Message, User
+from src.model import Message, Session, User
 from src.pubsub import messages, pubsub
 
 logger = logging.getLogger("gql_types")
+relay = graphene.relay
 
 
 # Types
- 
+
+
+class SessionType(SQLAlchemyObjectType):
+	class Meta:
+		model = Session
+		interfaces = (relay.Node,)
+
 
 class UserType(SQLAlchemyObjectType):
 	class Meta:
 		model = User
-		interfaces = (graphene.relay.Node,)
+		interfaces = (relay.Node,)
 
 
 class MessageType(SQLAlchemyObjectType):
 	class Meta:
 		model = Message
-		interfaces = (graphene.relay.Node,)
+		interfaces = (relay.Node,)
 
+
+# Mutations
+
+# TODO: IMPLMEMENT 'CREATESESSION' MUTATION TYPE
 
 class CreateMessage(graphene.Mutation):
 	class Arguments:
@@ -32,6 +43,7 @@ class CreateMessage(graphene.Mutation):
 
 	message = graphene.Field(lambda: MessageType)
 
+	# TODO: ADD SESSION_ID TO PARAMS, AND ASSIGN TO MESSAGE
 	def mutate(self, info, content, username):
 		logger.info("username: %s submitting message content: %s", username, content)
 
