@@ -11,14 +11,15 @@ Table = db.Table
 backref = db.backref
 
 user_session_table = Table('user_session', Model.metadata,
-                           Column('user_id', Integer, ForeignKey('users.id')),
-                           Column('session_id', Integer, ForeignKey('sessions.id'))
+                           Column('user_id', Integer, ForeignKey('users.uuid')),
+                           Column('session_id', Integer, ForeignKey('sessions.uuid'))
                            )
 
 
 class User(Model):
 	__tablename__ = 'users'
-	id = Column(Integer, primary_key=True)
+	# id = Column(Integer, primary_key=True)
+	uuid = Column(Integer, primary_key=True)
 	username = Column(String(256), index=True, unique=True)
 
 	# one to many
@@ -30,7 +31,8 @@ class User(Model):
 
 class Session(Model):
 	__tablename__ = 'sessions'
-	id = Column(Integer, primary_key=True)
+	# id = Column(Integer, primary_key=True)
+	uuid = Column(Integer, primary_key=True)
 
 	# one to many
 	messages = relationship('Message', backref='session')
@@ -44,16 +46,17 @@ class Session(Model):
 
 class Message(Model):
 	__tablename__ = 'messages'
-	id = Column(Integer, primary_key=True)
+	# id = Column(Integer, primary_key=True)
+	uuid = Column(Integer, primary_key=True)
 	content = Column(Text, index=True)
 
 	# one to many
 	user_id = Column(
-		Integer, ForeignKey('users.id'))
+		Integer, ForeignKey('users.uuid'))
 
 	# many to many
 	session_id = Column(
-		Integer, ForeignKey('sessions.id')
+		Integer, ForeignKey('sessions.uuid')
 	)
 
 	def __repr__(self):

@@ -4,7 +4,7 @@ import graphene
 from graphene_sqlalchemy import SQLAlchemyConnectionField
 
 from src.gql_types import CreateMessage, MessageType, SessionType, UserType
-from src.model import Message
+from src.model import Message, User
 from src.pubsub import messages, pubsub
 
 logger = logging.getLogger("schema")
@@ -21,32 +21,32 @@ logger = logging.getLogger("schema")
 
 class Query(graphene.ObjectType):
 	node = graphene.relay.Node.Field()
+	user = graphene.Field(lambda: UserType, user_id=graphene.String())
 	users = SQLAlchemyConnectionField(UserType)
 	sessions = graphene.List(lambda: SessionType)
 	messages = graphene.List(MessageType, user_id=graphene.String())
 
+	def resolve_user(self, info, user_id):
+		logger.info("getting user, with id %s", user_id)
+		user = User.query.filter(User.uuid == user_id).first()
+		logger.info("returning user: %s", user)
+		return user
+
 	def resolve_sessions(self, info):
-		try:
-			query = SessionType.get_query(info)
-			session_count = query.count()
-			all_sessions = query.all()
-		except NameError:
-			logger.error("Error occurred when fetching sessions for user_id %s;\nError message: %s", "none", NameError)
-		else:
-			logger.debug("returning %s sessions...", session_count)
-			return all_sessions
+		query = SessionType.get_query(info)
+		session_count = query.count()
+		all_sessions = query.all()
+		logger.debug("returning %s sessions...", session_count)
+		return all_sessions
 
 	def resolve_messages(self, info, user_id):
-		try:
-			logger.debug("fetching messages for user_id: %s", user_id)
-			message_query = Message.query.filter_by(user_id=user_id)
-			message_count = message_query.count()
-			all_messages = message_query.all()
-		except NameError:
-			logger.error("Error occurred when fetching messages for user_id %s;\nError message: %s", user_id, NameError)
-		else:
-			logger.debug("returning %s messages...", message_count)
-			return all_messages
+		# TODO: CHECK USER_ID + SESSION_ID TO RETURN MESSAGES IN SESSION
+		logger.debug("fetching messages for user_id: %s", user_id)
+		message_query = Message.query.filter_by(user_id=user_id)
+		message_count = message_query.count()
+		all_messages = message_query.all()
+		logger.debug("returning %s messages...", message_count)
+		return all_messages
 
 
 class Mutation(graphene.ObjectType):
