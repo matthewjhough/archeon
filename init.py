@@ -51,7 +51,7 @@ def initialize(db):
 		db.session.commit()
 		db.session.flush()
 		# end commit / flush
-
+		
 		logger.info("initialization complete.")
 
 

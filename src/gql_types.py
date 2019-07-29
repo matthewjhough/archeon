@@ -40,19 +40,25 @@ class CreateMessage(graphene.Mutation):
 	class Arguments:
 		content = graphene.String(required=True)
 		username = graphene.String(required=True)
+		session_id = graphene.String(required=True)
 
 	message = graphene.Field(lambda: MessageType)
 
 	# TODO: ADD SESSION_ID TO PARAMS, AND ASSIGN TO MESSAGE
-	def mutate(self, info, content, username):
+	def mutate(self, info, content, username, session_id):
 		logger.info("username: %s submitting message content: %s", username, content)
 
 		user = User.query.filter_by(username=username).first()
+		session = Session.query.filter(Session.uuid == session_id).first()
 		message = Message(content=content)
 
 		if user is not None:
 			logger.info("user found, assigning user to message.")
 			message.user = user
+
+		if session is not None:
+			logger.info("session found, assigning session to message")
+			message.session = session
 
 		# TODO: REPLACE WITH HTTP REQUEST TO MESSAGE SERVER
 		db.session.add(message)
