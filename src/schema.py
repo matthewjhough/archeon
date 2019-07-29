@@ -10,10 +10,6 @@ from src.pubsub import messages, pubsub
 logger = logging.getLogger("schema")
 
 
-# TODO: ADD PARAMETERS/RESOLVERS TO QUERIES
-
-# TODO: ADD SESSION
-
 # TODO: ADD USER/AUTHENTICATION LOGIN
 
 # TODO: ADD AUTHORIZATION FOR USERS

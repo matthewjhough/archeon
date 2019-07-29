@@ -18,7 +18,6 @@ user_session_table = Table('user_session', Model.metadata,
 
 class User(Model):
 	__tablename__ = 'users'
-	# id = Column(Integer, primary_key=True)
 	uuid = Column(Integer, primary_key=True)
 	username = Column(String(256), index=True, unique=True)
 
@@ -31,7 +30,6 @@ class User(Model):
 
 class Session(Model):
 	__tablename__ = 'sessions'
-	# id = Column(Integer, primary_key=True)
 	uuid = Column(Integer, primary_key=True)
 
 	# one to many
@@ -46,7 +44,6 @@ class Session(Model):
 
 class Message(Model):
 	__tablename__ = 'messages'
-	# id = Column(Integer, primary_key=True)
 	uuid = Column(Integer, primary_key=True)
 	content = Column(Text, index=True)
 
