@@ -5,3 +5,4 @@ venv
 data.sqlite
 arch_presentation.log
 logs/server.log
+client/node_modules
