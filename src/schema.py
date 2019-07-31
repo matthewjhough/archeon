@@ -3,9 +3,14 @@ import logging
 import graphene
 from graphene_sqlalchemy import SQLAlchemyConnectionField
 
-from src.gql_types import CreateMessage, MessageType, SessionType, UserType
-from src.model import Message, User
-from src.pubsub import messages, pubsub
+from src.common.pubsub import messages, pubsub
+from src.message.create_message import CreateMessage
+from src.message.message_resolver import resolve_messages
+from src.message.message_type import MessageType
+from src.session.session_resolver import resolve_sessions
+from src.session.session_type import SessionType
+from src.user.user_resolver import resolve_user
+from src.user.user_type import UserType
 
 logger = logging.getLogger("schema")
 
@@ -22,27 +27,9 @@ class Query(graphene.ObjectType):
 	sessions = graphene.List(lambda: SessionType)
 	messages = graphene.List(MessageType, user_id=graphene.String())
 
-	def resolve_user(self, info, user_id):
-		logger.info("getting user, with id %s", user_id)
-		user = User.query.filter(User.uuid == user_id).first()
-		logger.info("returning user: %s", user)
-		return user
-
-	def resolve_sessions(self, info):
-		query = SessionType.get_query(info)
-		session_count = query.count()
-		all_sessions = query.all()
-		logger.debug("returning %s sessions...", session_count)
-		return all_sessions
-
-	def resolve_messages(self, info, user_id):
-		# TODO: CHECK USER_ID + SESSION_ID TO RETURN MESSAGES IN SESSION
-		logger.debug("fetching messages for user_id: %s", user_id)
-		message_query = Message.query.filter_by(user_id=user_id)
-		message_count = message_query.count()
-		all_messages = message_query.all()
-		logger.debug("returning %s messages...", message_count)
-		return all_messages
+	resolve_sessions = resolve_sessions
+	resolve_user = resolve_user
+	resolve_messages = resolve_messages
 
 
 class Mutation(graphene.ObjectType):

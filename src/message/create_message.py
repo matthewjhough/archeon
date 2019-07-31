@@ -1,35 +1,15 @@
 import logging
 
 import graphene
-from graphene_sqlalchemy import SQLAlchemyObjectType
 
-from src.db import db
-from src.model import Message, Session, User
-from src.pubsub import messages, pubsub
+from src.common.db import db
+from src.common.pubsub import messages, pubsub
+from src.message.message_model import MessageModel
+from src.message.message_type import MessageType
+from src.session.session_model import SessionModel
+from src.user.user_model import UserModel
 
-logger = logging.getLogger("gql_types")
-relay = graphene.relay
-
-
-# Types
-
-
-class UserType(SQLAlchemyObjectType):
-	class Meta:
-		model = User
-		interfaces = (relay.Node,)
-
-
-class SessionType(SQLAlchemyObjectType):
-	class Meta:
-		model = Session
-		interfaces = (relay.Node,)
-
-
-class MessageType(SQLAlchemyObjectType):
-	class Meta:
-		model = Message
-		interfaces = (relay.Node,)
+logger = logging.getLogger("create_message")
 
 
 # Mutations
@@ -48,9 +28,9 @@ class CreateMessage(graphene.Mutation):
 	def mutate(self, info, content, username, session_id):
 		logger.info("username: %s submitting message content: %s", username, content)
 
-		user = User.query.filter_by(username=username).first()
-		session = Session.query.filter(Session.uuid == session_id).first()
-		message = Message(content=content)
+		user = UserModel.query.filter_by(username=username).first()
+		session = SessionModel.query.filter(SessionModel.uuid == session_id).first()
+		message = MessageModel(content=content)
 
 		if user is not None:
 			logger.info("user found, assigning user to message.")

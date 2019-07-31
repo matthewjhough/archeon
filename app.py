@@ -6,7 +6,7 @@ from flask_graphql import GraphQLView
 from flask_sockets import Sockets
 from graphql_ws.gevent import GeventSubscriptionServer
 
-from src.db import db
+from src.common.db import db
 from src.schema import schema
 from utils.logging import set_logging_path
 

@@ -1,7 +1,8 @@
 import logging
 
 from app import app, db
-from src.model import Session, User
+from src.session.session_model import SessionModel
+from src.user.user_model import UserModel
 
 logger = logging.getLogger("initialization")
 
@@ -15,15 +16,15 @@ def initialize(db):
 
 		db.create_all()
 
-		test = User(username='test')
+		test = UserModel(username='test')
 		db.session.add(test)
 		db.session.commit()
 
 		logger.info("user %s added", test.username)
 
-		User.query.all()
+		UserModel.query.all()
 
-		test2 = User(username='test2')
+		test2 = UserModel(username='test2')
 		db.session.add(test2)
 
 		# commit / flush
@@ -34,7 +35,7 @@ def initialize(db):
 		logger.info("db flushed, data saved.")
 
 		logger.info("user %s added", test2.username)
-		chat_session = Session()
+		chat_session = SessionModel()
 
 		# commit / flush
 		db.session.commit()
@@ -51,7 +52,7 @@ def initialize(db):
 		db.session.commit()
 		db.session.flush()
 		# end commit / flush
-		
+
 		logger.info("initialization complete.")
 
 
